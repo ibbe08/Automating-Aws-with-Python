@@ -11,11 +11,11 @@ import boto3
 from hashlib import md5
 import util
 
+
 class BucketManager:
     """Manage an s3 bucket."""
 
     CHUNK_SIZE = 8388608
-
 
     def __init__(self, session):
         """Create a BucketManager object."""
@@ -28,6 +28,10 @@ class BucketManager:
 
         self.manifest = {}
 
+    def get_bucket(self, bucket_name):
+        """Get a bucket by name."""
+        return self.s3.Bucket(bucket_name)
+
     def get_region_name(self, bucket):
         """Get the bucket's region name."""
         bucket_location = self.s3.meta.client.get_bucket_location(Bucket=bucket.name)
@@ -37,7 +41,7 @@ class BucketManager:
     def get_bucket_url(self, bucket):
         """Get the website URL for this bucket."""
         return "http://{}.{}".format(bucket.name,
-            util.get_endpoint(self.get_region_name(bucket)).host)
+        util.get_endpoint(self.get_region_name(bucket)).host)
 
     def all_buckets(self):
         """Get an iterator for all buckets."""
@@ -121,14 +125,12 @@ class BucketManager:
             hash = self.hash_data(reduce(lambda x, y: x + y, (h.digest() for h in hashes)))
             return '"{}-{}"'.format(hash.hexdigest(), len(hashes))
 
-
     def upload_file(self, bucket, path, key):
         """Upload path to s3_bucket at key."""
         content_type = mimetypes.guess_type(key)[0] or 'text/plain'
 
         etag = self.gen_etag(path)
         if self.manifest.get(key, '') == etag:
-            print("Skipping {}, etags match".format(key))
             return
 
         return bucket.upload_file(
