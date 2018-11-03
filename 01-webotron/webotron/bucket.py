@@ -1,17 +1,30 @@
 # -*- coding: utf-8 -*-
 
-"""Classes for s3 buckets"""
+"""Classes for s3 buckets."""
 
 from pathlib import Path
 import mimetypes
 
+import util
 
 class BucketManager:
     """Manage an s3 bucket."""
 
+
     def __init__(self, session):
         """Create a Bucket Manager object."""
         self.s3 = session.resource('s3')
+
+    def get_region_name(self, bucket):
+        """Get the bucket's region name."""
+        bucket_location = self.s3.meta.client.get_bucket_location(Bucket=bucket.name)
+
+        return bucket_location["LocationConstraint"] or 'us-east-1'
+
+    def get_bucket_url(self, bucket):
+        """Get the website URL for this bucket."""
+        return "http://{}.{}".format(bucket.name,
+            util.get_endpoint(self.get_region_name(bucket)).host)
 
     def all_buckets(self):
         """Get an iterator for all buckets."""
@@ -29,7 +42,6 @@ class BucketManager:
 
     def set_policy(self, bucket):
         """Set bucket policy to be readable by everyone."""
-
         policy= """
         {
           "Version":"2012-10-17",
@@ -51,7 +63,6 @@ class BucketManager:
 
     def configure_website(self, bucket):
         """Configure s3 website hosting for bucket."""
-
         website = bucket.Website()
         website.put(WebsiteConfiguration={'ErrorDocument': {
                 'Key': 'error.html'

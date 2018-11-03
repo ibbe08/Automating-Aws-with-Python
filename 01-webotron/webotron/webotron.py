@@ -52,6 +52,7 @@ def list_bucket_objects(bucket):
 
         print(obj)
 
+
 @cli.command('setup-bucket')
 @click.argument('bucket')
 def setup_bucket(bucket):
@@ -62,12 +63,14 @@ def setup_bucket(bucket):
 
     return
 
+
 @cli.command('sync')
 @click.argument('pathname', type=click.Path(exists=True))
 @click.argument('bucket')
 def sync(pathname, bucket):
     """Sync contents of PATHNAME to bucket."""
     bucket_manager.sync(pathname, bucket)
+    print(bucket_manager.get_bucket_url(bucket_manager.s3.Bucket(bucket)))
 
 
 if __name__ == '__main__':
