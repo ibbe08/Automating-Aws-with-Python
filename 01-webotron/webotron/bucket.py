@@ -9,7 +9,7 @@ from functools import reduce
 import boto3
 
 from hashlib import md5
-import util
+from webotron import util
 
 
 class BucketManager:
@@ -54,7 +54,7 @@ class BucketManager:
     def init_bucket(self, bucket_name):
         """Create new bucket, or return existing one by name."""
         new_bucket = self.s3.create_bucket(Bucket=bucket_name)
-                
+
         return new_bucket
 
     def set_policy(self, bucket):
