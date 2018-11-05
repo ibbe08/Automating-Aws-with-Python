@@ -52,9 +52,9 @@ class BucketManager:
         return self.s3.Bucket(bucket_name).objects.all()
 
     def init_bucket(self, bucket_name):
-        """Create new bucket."""
+        """Create new bucket, or return existing one by name."""
         new_bucket = self.s3.create_bucket(Bucket=bucket_name)
-
+                
         return new_bucket
 
     def set_policy(self, bucket):
